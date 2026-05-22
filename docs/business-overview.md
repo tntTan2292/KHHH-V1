@@ -28,7 +28,7 @@ Hệ thống KHHH V1 (Khách Hàng Hiện Hữu) được xây dựng để theo
 - **Danh Sách Khách Hàng**: Quản lý khách hàng hiện hữu (Mã CRM, Phân khúc RFM, Doanh thu, Nợ). Có chức năng đồng bộ dữ liệu SFTP (từ server 10.1.45.10) và xem chi tiết lịch sử 360°.
 - **Khách Hàng Tiềm Năng**: Theo dõi các đối tượng khách hàng mới chưa phát sinh nhiều doanh thu.
 - **Cơ Cấu Dịch Vụ**: Phân tích chéo tỷ trọng dịch vụ (Trong nước vs Quốc tế, các dịch vụ lõi).
-- **Cổng Tác Chiến**: Kanban/List view quản lý các tác vụ chăm sóc khách hàng theo trạng thái (*Mới, Đang liên hệ, Đang đàm phán, Đã hoàn thành*), lưu trữ lịch sử tương tác.
+- **Cổng Tác Chiến**: List view quản lý các tác vụ chăm sóc khách hàng theo trạng thái (*Mới, Đang liên hệ, Đang đàm phán, Đã hoàn thành*), lưu trữ lịch sử tương tác.
 
 ## Luồng dữ liệu mức cao
 1. **Nguồn dữ liệu (Source)**: Server SFTP lõi (CAS/Portal VNPost).
