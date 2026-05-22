@@ -12,7 +12,6 @@ export default function CustomerMovement() {
     current_end_date: '',
     compare_start_date: '',
     compare_end_date: '',
-    don_vi: '',
     rfm_segment: '',
     nhom_kh: '',
     nhan_su: '',
@@ -157,13 +156,7 @@ export default function CustomerMovement() {
               </div>
             </div>
           </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-gray-600 uppercase">Đơn vị</label>
-            <select name="don_vi" value={filters.don_vi} onChange={handleFilterChange} className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-vnpost-blue outline-none text-sm bg-white">
-              <option value="">Tất cả Bưu cục</option>
-              <option value="700000">700000 - Bưu điện TT Huế</option>
-            </select>
-          </div>
+
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-600 uppercase">Trạng thái</label>
             <select name="movement_status" value={filters.movement_status} onChange={handleFilterChange} className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-vnpost-blue outline-none text-sm bg-white">

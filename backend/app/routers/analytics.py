@@ -608,7 +608,6 @@ async def get_customer_movement(
     current_end_date: str = Query(None),
     compare_start_date: str = Query(None),
     compare_end_date: str = Query(None),
-    don_vi: str = Query(None),
     rfm_segment: str = Query(None),
     movement_status: str = Query(None),
     nhom_kh: str = Query(None),
@@ -657,9 +656,6 @@ async def get_customer_movement(
          return {"total": 0, "page": page, "limit": limit, "summary": {}, "items": []}
 
     cust_query = db.query(Customer).filter(Customer.ma_crm_cms.in_(all_ma_kh))
-    
-    if don_vi:
-        cust_query = cust_query.filter(Customer.don_vi == don_vi)
     if rfm_segment:
         cust_query = cust_query.filter(Customer.rfm_segment == rfm_segment)
     if nhom_kh:
@@ -678,7 +674,7 @@ async def get_customer_movement(
     count_losers = 0
 
     for ma_kh in all_ma_kh:
-        if (don_vi or rfm_segment or search or nhom_kh) and ma_kh not in cust_map:
+        if (rfm_segment or search or nhom_kh) and ma_kh not in cust_map:
             continue
             
         c = cust_map.get(ma_kh)
@@ -741,3 +737,5 @@ async def get_customer_movement(
         },
         "items": paginated_items
     }
+
+
