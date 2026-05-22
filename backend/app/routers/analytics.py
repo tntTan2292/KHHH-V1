@@ -708,7 +708,7 @@ def get_customer_movement_data(
             "ten_kh": c.ten_kh if c else "Khách hàng không tên",
             "ma_bc_phu_trach": c.ten_bc_vhx if c else None,
             "rfm_segment": c.rfm_segment if c else "Thường",
-            "nhan_su": None,
+            "nhan_su": c.nhan_su if c else None,
             "current_rev": curr_rev,
             "previous_rev": prev_rev,
             "diff_value": diff_val,

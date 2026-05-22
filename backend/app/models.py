@@ -29,6 +29,7 @@ class Customer(Base):
     is_churn = Column(Integer, default=0) # 0: Đang hoạt động, 1: Rời bỏ (Không phát sinh DT)
 
     ma_bc_phu_trach = Column(String(50), nullable=True, index=True) # Bưu cục được gán chăm sóc
+    nhan_su = Column(String(200), nullable=True, index=True) # Cá nhân chịu trách nhiệm chăm sóc
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
 
