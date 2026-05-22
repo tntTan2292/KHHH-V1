@@ -106,7 +106,7 @@ export default function CustomerMovement() {
 
       {/* Filter Area */}
       <div className="card p-4 bg-white shadow-sm border border-gray-100 rounded-xl">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="space-y-1.5 lg:col-span-2">
             <label className="text-xs font-bold text-gray-600 uppercase">Tìm kiếm</label>
             <div className="relative">
@@ -116,7 +116,7 @@ export default function CustomerMovement() {
                 name="search"
                 value={filters.search}
                 onChange={handleFilterChange}
-                placeholder="Mã KH, Tên KH, Nhân sự..." 
+                placeholder="Mã KH, Tên KH..." 
                 className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 focus:border-vnpost-blue outline-none text-sm" 
               />
             </div>
@@ -157,12 +157,33 @@ export default function CustomerMovement() {
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-600 uppercase">Trạng thái</label>
             <select name="movement_status" value={filters.movement_status} onChange={handleFilterChange} className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-vnpost-blue outline-none text-sm bg-white">
-              <option value="">Tất cả</option>
+              <option value="">Tất cả trạng thái</option>
               <option value="INCREASE">Tăng trưởng</option>
               <option value="DECREASE">Sụt giảm</option>
               <option value="NEW">Khách mới</option>
               <option value="CHURN">Rời bỏ</option>
             </select>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-gray-600 uppercase">Phân khúc</label>
+            <select name="rfm_segment" value={filters.rfm_segment} onChange={handleFilterChange} className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-vnpost-blue outline-none text-sm bg-white">
+              <option value="">Tất cả phân khúc</option>
+              <option value="VIP">VIP</option>
+              <option value="Vàng">Vàng</option>
+              <option value="Bạc">Bạc</option>
+              <option value="Tiềm Năng">Tiềm Năng</option>
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-gray-600 uppercase">Nhân sự</label>
+            <input 
+              type="text" 
+              name="nhan_su"
+              value={filters.nhan_su}
+              onChange={handleFilterChange}
+              placeholder="Nhập tên nhân sự..." 
+              className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-vnpost-blue outline-none text-sm bg-white" 
+            />
           </div>
         </div>
       </div>
