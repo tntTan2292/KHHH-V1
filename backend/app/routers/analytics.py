@@ -602,26 +602,24 @@ async def get_vip_top10_revenue(
 
 
 
-@router.get("/customer-movement")
-async def get_customer_movement(
-    current_start_date: str = Query(None),
-    current_end_date: str = Query(None),
-    compare_start_date: str = Query(None),
-    compare_end_date: str = Query(None),
-    rfm_segment: str = Query(None),
-    movement_status: str = Query(None),
-    nhom_kh: str = Query(None),
-    nhan_su: str = Query(None),
-    search: str = Query(None),
-    page: int = 1,
-    limit: int = 50,
-    db: Session = Depends(get_db)
+
+def get_customer_movement_data(
+    current_start_date: str,
+    current_end_date: str,
+    compare_start_date: str,
+    compare_end_date: str,
+    rfm_segment: str,
+    movement_status: str,
+    nhom_kh: str,
+    nhan_su: str,
+    search: str,
+    db: Session
 ):
     max_data_date = db.query(func.max(Transaction.ngay_chap_nhan)).scalar()
     
     if not current_start_date or not current_end_date:
         if not max_data_date:
-            return {"total": 0, "page": page, "limit": limit, "summary": {}, "items": []}
+            return [], 0.0, 0.0, 0, 0
         curr_start = max_data_date.replace(day=1)
         curr_end = max_data_date
     else:
@@ -653,7 +651,7 @@ async def get_customer_movement(
 
     all_ma_kh = set(curr_rev_map.keys()).union(set(prev_rev_map.keys()))
     if not all_ma_kh:
-         return {"total": 0, "page": page, "limit": limit, "summary": {}, "items": []}
+         return [], 0.0, 0.0, 0, 0
 
     cust_query = db.query(Customer).filter(Customer.ma_crm_cms.in_(all_ma_kh))
     if rfm_segment:
@@ -719,6 +717,28 @@ async def get_customer_movement(
         })
 
     items.sort(key=lambda x: abs(x["diff_value"]), reverse=True)
+
+    return items, total_gain, total_loss, count_gainers, count_losers
+
+@router.get("/customer-movement")
+async def get_customer_movement(
+    current_start_date: str = Query(None),
+    current_end_date: str = Query(None),
+    compare_start_date: str = Query(None),
+    compare_end_date: str = Query(None),
+    rfm_segment: str = Query(None),
+    movement_status: str = Query(None),
+    nhom_kh: str = Query(None),
+    nhan_su: str = Query(None),
+    search: str = Query(None),
+    page: int = 1,
+    limit: int = 50,
+    db: Session = Depends(get_db)
+):
+    items, total_gain, total_loss, count_gainers, count_losers = get_customer_movement_data(
+        current_start_date, current_end_date, compare_start_date, compare_end_date,
+        rfm_segment, movement_status, nhom_kh, nhan_su, search, db
+    )
 
     total = len(items)
     start_idx = (page - 1) * limit

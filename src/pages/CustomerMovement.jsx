@@ -58,6 +58,17 @@ export default function CustomerMovement() {
     setPage(1);
   };
 
+  const handleExport = async () => {
+    try {
+      toast.info('Đang xử lý file Excel, vui lòng chờ...', { autoClose: 2000 });
+      const queryString = new URLSearchParams(filters).toString();
+      window.location.href = `${API_URL}/export/customer-movement?${queryString}`;
+    } catch (error) {
+      console.error('Lỗi xuất Excel:', error);
+      toast.error('Có lỗi xảy ra khi xuất Excel');
+    }
+  };
+
   const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val || 0);
 
   // Do backend trả về schema của top-movers (không match contract), frontend dùng data có sẵn để render, không hack/chế thêm.
@@ -79,7 +90,7 @@ export default function CustomerMovement() {
             <UploadCloud size={18} />
             <span className="font-bold">Nhân Sự</span>
           </button>
-          <button className="btn-primary h-11 bg-vnpost-orange text-white hover:bg-orange-600 font-bold transition-colors" disabled={loading}>
+          <button onClick={handleExport} className="btn-primary h-11 bg-vnpost-orange text-white hover:bg-orange-600 font-bold transition-colors" disabled={loading}>
             <DownloadCloud size={18} />
             <span>Xuất Excel</span>
           </button>
