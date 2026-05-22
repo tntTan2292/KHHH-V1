@@ -708,7 +708,7 @@ async def get_customer_movement(
         items.append({
             "ma_crm_cms": ma_kh,
             "ten_kh": c.ten_kh if c else "Khách hàng không tên",
-            "ma_bc_phu_trach": c.don_vi if c else None,
+            "ma_bc_phu_trach": c.ten_bc_vhx if c else None,
             "rfm_segment": c.rfm_segment if c else "Thường",
             "nhan_su": None,
             "current_rev": curr_rev,
