@@ -36,7 +36,7 @@ export default function CustomerMovement() {
       // Ưu tiên reuse /analytics/top-movers theo yêu cầu
       const params = {
         ...filters,
-        limit: 50,
+        limit: 20,
         page: page
       };
       
@@ -351,7 +351,8 @@ export default function CustomerMovement() {
               <button className="px-3 py-1.5 rounded bg-vnpost-blue text-white text-xs font-bold shadow-sm">{page}</button>
               <button 
                 onClick={() => setPage(p => p + 1)}
-                className="p-1.5 rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-100"
+                disabled={page * 20 >= total}
+                className="p-1.5 rounded bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-50"
               >
                 <ChevronRight size={14} />
               </button>
