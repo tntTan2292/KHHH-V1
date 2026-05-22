@@ -6,6 +6,7 @@ import Customers from './pages/Customers';
 import PotentialCustomers from './pages/PotentialCustomers';
 import ServiceMix from './pages/ServiceMix';
 import ActionCenter from './pages/ActionCenter';
+import CustomerMovement from './pages/CustomerMovement';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -24,6 +25,7 @@ function App() {
               <Route path="/potential" element={<PotentialCustomers />} />
               <Route path="/service-mix" element={<ServiceMix />} />
               <Route path="/action-center" element={<ActionCenter />} />
+              <Route path="/customer-movement" element={<CustomerMovement />} />
             </Routes>
           </main>
         </div>

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Mailbox, Target, PieChart, ClipboardCheck } from 'lucide-react';
+import { LayoutDashboard, Users, Mailbox, Target, PieChart, ClipboardCheck, TrendingUp } from 'lucide-react';
 import vnpostLogo from '../assets/logo.png';
 
 
@@ -16,6 +16,7 @@ export default function Sidebar() {
     { name: 'Khách Hàng Tiềm Năng', path: '/potential', icon: <Target size={20} /> },
     { name: 'Cơ Cấu Dịch Vụ', path: '/service-mix', icon: <PieChart size={20} /> },
     { name: 'Cổng Tác Chiến', path: '/action-center', icon: <ClipboardCheck size={20} /> },
+    { name: 'Báo cáo Biến động KH', path: '/customer-movement', icon: <TrendingUp size={20} /> },
   ];
 
   return (
