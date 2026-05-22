@@ -38,7 +38,7 @@ export default function CustomerMovement() {
         page: page
       };
       
-      const res = await axios.get(`${API_URL}/analytics/top-movers`, { params });
+      const res = await axios.get(`${API_URL}/analytics/customer-movement`, { params });
       
       // KHÔNG TẠO TRANSFORM LAYER PHỨC TẠP: Lưu nguyên response từ backend
       setApiData(res.data);

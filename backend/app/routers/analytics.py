@@ -601,3 +601,137 @@ async def get_vip_top10_revenue(
     return results
 
 
+
+@router.get("/customer-movement")
+async def get_customer_movement(
+    current_start_date: str = Query(None),
+    current_end_date: str = Query(None),
+    compare_start_date: str = Query(None),
+    compare_end_date: str = Query(None),
+    don_vi: str = Query(None),
+    rfm_segment: str = Query(None),
+    movement_status: str = Query(None),
+    nhan_su: str = Query(None),
+    search: str = Query(None),
+    page: int = 1,
+    limit: int = 50,
+    db: Session = Depends(get_db)
+):
+    max_data_date = db.query(func.max(Transaction.ngay_chap_nhan)).scalar()
+    
+    if not current_start_date or not current_end_date:
+        if not max_data_date:
+            return {"total": 0, "page": page, "limit": limit, "summary": {}, "items": []}
+        curr_start = max_data_date.replace(day=1)
+        curr_end = max_data_date
+    else:
+        curr_start = datetime.strptime(current_start_date, "%Y-%m-%d")
+        curr_end = datetime.strptime(current_end_date, "%Y-%m-%d").replace(hour=23, minute=59, second=59)
+        
+    if not compare_start_date or not compare_end_date:
+        prev_start = curr_start - dateutil.relativedelta.relativedelta(months=1)
+        comparison_end = curr_end
+        if max_data_date and curr_end > max_data_date:
+             comparison_end = max_data_date
+        prev_end = comparison_end - dateutil.relativedelta.relativedelta(months=1)
+    else:
+        prev_start = datetime.strptime(compare_start_date, "%Y-%m-%d")
+        prev_end = datetime.strptime(compare_end_date, "%Y-%m-%d").replace(hour=23, minute=59, second=59)
+
+    query_curr = db.query(Transaction.ma_kh, func.sum(Transaction.doanh_thu))\
+                   .filter(Transaction.ngay_chap_nhan >= curr_start, Transaction.ngay_chap_nhan <= curr_end)\
+                   .group_by(Transaction.ma_kh)
+    curr_rev_map = {r[0]: (r[1] or 0) for r in query_curr.all() if r[0]}
+
+    query_prev = db.query(Transaction.ma_kh, func.sum(Transaction.doanh_thu))\
+                   .filter(Transaction.ngay_chap_nhan >= prev_start, Transaction.ngay_chap_nhan <= prev_end)\
+                   .group_by(Transaction.ma_kh)
+    prev_rev_map = {r[0]: (r[1] or 0) for r in query_prev.all() if r[0]}
+
+    all_ma_kh = set(curr_rev_map.keys()).union(set(prev_rev_map.keys()))
+    if not all_ma_kh:
+         return {"total": 0, "page": page, "limit": limit, "summary": {}, "items": []}
+
+    cust_query = db.query(Customer).filter(Customer.ma_crm_cms.in_(all_ma_kh))
+    
+    if don_vi:
+        cust_query = cust_query.filter(Customer.don_vi == don_vi)
+    if rfm_segment:
+        cust_query = cust_query.filter(Customer.rfm_segment == rfm_segment)
+    if search:
+        search_pattern = f"%{search}%"
+        cust_query = cust_query.filter((Customer.ma_crm_cms.ilike(search_pattern)) | (Customer.ten_kh.ilike(search_pattern)))
+        
+    customers = cust_query.all()
+    cust_map = {c.ma_crm_cms: c for c in customers}
+
+    items = []
+    total_gain = 0.0
+    total_loss = 0.0
+    count_gainers = 0
+    count_losers = 0
+
+    for ma_kh in all_ma_kh:
+        if (don_vi or rfm_segment or search) and ma_kh not in cust_map:
+            continue
+            
+        c = cust_map.get(ma_kh)
+        
+        curr_rev = curr_rev_map.get(ma_kh, 0.0)
+        prev_rev = prev_rev_map.get(ma_kh, 0.0)
+        diff_val = curr_rev - prev_rev
+        
+        if prev_rev == 0 and curr_rev > 0:
+            diff_pct = 100.0
+            status = "NEW"
+        elif prev_rev > 0 and curr_rev == 0:
+            diff_pct = -100.0
+            status = "CHURN"
+        elif prev_rev > 0 and curr_rev > 0:
+            diff_pct = (diff_val / prev_rev) * 100.0
+            status = "INCREASE" if diff_val > 0 else ("DECREASE" if diff_val < 0 else "SAME")
+        else:
+            continue 
+            
+        if movement_status and status != movement_status:
+            continue
+            
+        if diff_val > 0:
+            total_gain += diff_val
+            count_gainers += 1
+        elif diff_val < 0:
+            total_loss += abs(diff_val)
+            count_losers += 1
+
+        items.append({
+            "ma_crm_cms": ma_kh,
+            "ten_kh": c.ten_kh if c else "Khách hàng không tên",
+            "ma_bc_phu_trach": c.don_vi if c else None,
+            "rfm_segment": c.rfm_segment if c else "Thường",
+            "nhan_su": None,
+            "current_rev": curr_rev,
+            "previous_rev": prev_rev,
+            "diff_value": diff_val,
+            "diff_percent": round(diff_pct, 1),
+            "movement_status": status
+        })
+
+    items.sort(key=lambda x: abs(x["diff_value"]), reverse=True)
+
+    total = len(items)
+    start_idx = (page - 1) * limit
+    end_idx = start_idx + limit
+    paginated_items = items[start_idx:end_idx]
+
+    return {
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "summary": {
+            "total_gain": total_gain,
+            "total_loss": total_loss,
+            "count_gainers": count_gainers,
+            "count_losers": count_losers
+        },
+        "items": paginated_items
+    }
