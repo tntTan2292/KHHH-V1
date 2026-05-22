@@ -1,0 +1,40 @@
+{
+  "excel": {
+    "total_rows": 1447,
+    "valid_crm_records": 1447,
+    "unique_crm_records": 1392,
+    "groups": {
+      "KHHH": 1228,
+      "KH Mới": 219
+    },
+    "top_crm": [
+      "T004890545",
+      "C001395675",
+      "T001799661",
+      "T001456556",
+      "T001799967",
+      "C001929335",
+      "T002490015",
+      "C005695891",
+      "T001799573",
+      "T001399385"
+    ]
+  },
+  "db": {
+    "total_customers": 1705,
+    "groups": {
+      "Khách hàng hiện hữu": 1228,
+      "Khách hàng mới": 477
+    },
+    "ban_giao_status": {
+      "Đã bàn giao": 1159,
+      "Chưa bàn giao": 233
+    },
+    "duplicate_crm_count": 0
+  },
+  "comparison": {
+    "missing_in_db_count": 0,
+    "extra_in_db_count": 313,
+    "missing_in_db_sample": []
+  }
+}

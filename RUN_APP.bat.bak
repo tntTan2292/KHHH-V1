@@ -1,0 +1,32 @@
+@echo off
+setlocal
+echo ===================================================
+echo KHOI DONG HE THONG QL KHHH - BUU DIEN TP HUE
+echo ===================================================
+
+cd /d "%~dp0"
+
+echo [1] Kiem tra trang thai dich vu...
+:: Bo qua buoc install de khoi dong nhanh (neu can install thi chay thu cong)
+:: cd backend && python -m pip install -r requirements.txt && cd ..
+:: call npm install
+
+echo [1.5] Kiem tra dong bo du lieu (V1 Startup Sync)...
+python backend\scripts\check_sync_on_startup.py
+
+echo [2] Khoi dong Backend (Port 8080)...
+cd backend
+start "KHHH_BACKEND" /B python -m uvicorn app.main:app --host 0.0.0.0 --port 8080
+
+echo [3] Khoi dong Frontend (Port 5180)...
+cd ..
+start "KHHH_FRONTEND" /B npm run dev -- --port 5180 --host
+
+echo [4] Mo trinh duyet...
+timeout /t 5 /nobreak >nul
+start http://10.47.33.16:5180
+
+echo ---------------------------------------------------
+echo He thong dang chay ngam. Vui long kiem tra trinh duyet.
+echo ---------------------------------------------------
+exit

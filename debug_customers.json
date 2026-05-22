@@ -1,0 +1,25 @@
+{
+  "total_count": 3568,
+  "null_count": 0,
+  "customers": [
+    {
+      "ma_crm_cms": "C019272527",
+      "ten_kh": "SHOP TIỆN ÍCH GIA ĐÌNH",
+      "nhom_kh": "Khách hàng mới"
+    },
+    {
+      "ma_crm_cms": "C019468838",
+      "ten_kh": "QUÀ TẶNG GỖ XINH",
+      "nhom_kh": "Khách hàng mới"
+    },
+    {
+      "ma_crm_cms": "T008182383",
+      "ten_kh": "Phòng Cảnh Sát Giao Thông - Công An Tỉnh Thừa Thiên Huế",
+      "nhom_kh": "Khách hàng mới"
+    }
+  ],
+  "unique_nhom": [
+    "Khách hàng hiện hữu",
+    "Khách hàng mới"
+  ]
+}

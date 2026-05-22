@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-vnpost-bg text-gray-800 antialiased font-sans;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all duration-300;
+  }
+  .card:hover {
+    @apply shadow-md border-vnpost-orange/30;
+  }
+  
+  .btn-primary {
+    @apply bg-vnpost-orange hover:bg-[#E09010] text-[#003E7E] font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm cursor-pointer;
+  }
+  
+  .btn-outline {
+    @apply border-2 border-vnpost-blue text-vnpost-blue hover:bg-vnpost-blue hover:text-white font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer;
+  }
+
+  .glass-header {
+    @apply bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* PDF Export & Print Optimization */
+.no-pdf {
+  display: none !important;
+}
+
+.pdf-page-break {
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+
+.page-break-before {
+  page-break-before: always !important;
+  break-before: page !important;
+  margin-top: 2rem !important;
+}
+
+/* Biểu đồ tròn cần padding để không mất nhãn khi xuất PDF */
+.recharts-responsive-container {
+  padding: 10px;
+}
+
+.card {
+  transition: all 0.3s ease;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

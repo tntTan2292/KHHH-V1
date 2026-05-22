@@ -1,0 +1,12 @@
+Mã CRM          | Tên KH                    | Doanh thu      
+------------------------------------------------------------
+T001800245      | Ủy Ban Nhân Dân Thành Phố |     347,073,114 VND
+T001873407      | Công An Tỉnh Thừa Thiên H |     212,158,440 VND
+C001395772      | Shop trina trần           |     204,488,369 VND
+T001460578      | Trung tâm Hành chính công |     197,915,616 VND
+T008182383      | Phòng Cảnh Sát Giao Thông |     178,659,739 VND
+T001873574      | Bảo Hiểm Xã Hội Tỉnh Thừa |     173,235,626 VND
+C001397376      | NGUYỄN VĂN PHƯỢNG         |     172,059,512 VND
+T001801011      | Văn phòng Tỉnh ủy Thừa Th |     154,326,560 VND
+T018057059      | Công Ty GTel - HCC Trực T |     118,991,210 VND
+C016207475      | Quà Tặng Hiếu Hà          |     117,034,945 VND
