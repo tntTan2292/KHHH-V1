@@ -9,12 +9,12 @@
 Các field này được lấy từ nguồn API hiện hành (Tham khảo từ `Customers.jsx` / `ActionCenter.jsx`):
 | Thông tin | Tên Field đang dùng (Frontend/API) |
 |---|---|
-| Mã khách hàng | `ma_crm_cms` |
+| Mã khách hàng | `ma_crm_cms` (hoặc `ma_kh` trả về từ API top-movers) |
 | Tên khách hàng | `ten_kh` |
-| Tên / Mã Bưu cục | `ten_bc_vhx` / `ma_bc_phu_trach` |
+| Tên / Mã Bưu cục | `ma_bc_phu_trach` |
 | Phân khúc khách hàng | `rfm_segment` |
-| Doanh thu kỳ báo cáo | `tong_doanh_thu` (hoặc `dynamic_revenue`) |
-| Doanh thu kỳ so sánh | *Chưa xác định rõ từ source hiện tại* (Có thể cần fetch riêng từ API theo tham số kỳ trước) |
+| Doanh thu kỳ báo cáo | `current` (hoặc `current_rev`) từ API trả về |
+| Doanh thu kỳ so sánh | `previous` (hoặc `previous_rev`) từ API trả về |
 
 ## 3. Các field cần tính toán/thêm mới
 | Thông tin thêm mới | Phương pháp / Nguồn |
@@ -24,14 +24,20 @@ Các field này được lấy từ nguồn API hiện hành (Tham khảo từ `
 | **Nhân sự phụ trách** | Thông tin import bổ sung (qua Excel/CSV). Cần thiết kế mapping với `ma_crm_cms`. |
 
 ## 4. Đề xuất logic tính biến động doanh thu
-- `Giá trị biến động` = `Doanh thu kỳ báo cáo` - `Doanh thu kỳ so sánh`.
-- `Tỷ lệ biến động (%)` = `(Giá trị biến động / Doanh thu kỳ so sánh) * 100`.
-- **Corner cases**: Nếu kỳ so sánh = 0 và kỳ báo cáo > 0, Tỷ lệ = `100%` (hoặc `New`). Nếu cả hai kỳ = 0, Tỷ lệ = `0%`.
+- **Source API**: Sử dụng trực tiếp API `/analytics/top-movers` đã có sẵn. API này tự động tính toán MoM (Month-over-Month) trả về `current` và `previous`.
+- `Giá trị biến động` = `diff` (Trả về sẵn từ API).
+- `Tỷ lệ biến động (%)` = `(diff / previous) * 100`.
+- **Corner cases (Xử lý mẫu số bằng 0)**:
+  - Nếu `previous == 0` và `current > 0`: Hiển thị nhãn **"MỚI"** (Không hiển thị +∞ hay 100%).
+  - Nếu `previous > 0` và `current == 0`: Hiển thị **-100%** (Rời bỏ).
+  - Nếu `previous == 0` và `current == 0`: Hiển thị **0%** hoặc bỏ qua.
 
 ## 5. Đề xuất structure import nhân sự phụ trách
-Quy trình Import file Excel/CSV:
-- **Cấu trúc file**: `Mã CRM CMS` | `Tên Khách Hàng` | `Mã Nhân Viên` | `Tên Nhân Viên Phụ Trách`.
-- **Quy trình xử lý**: Upload file tại màn hình Báo cáo ➔ Backend đọc file ➔ Map/Upsert bảng `Customer_Assignment` theo key `ma_crm_cms` ➔ Trả lại kết quả mapping cho Frontend.
+- **Hiện trạng**: Hệ thống Frontend hiện chưa có bất kỳ luồng Upload File nào.
+- **Cấu trúc file**: `ma_crm_cms` (Unique, ổn định để map) \| `Tên Nhân Viên Phụ Trách`.
+- **Kiến trúc đề xuất**: 
+  - Frontend: Tạo nút "Upload CSV/Excel", dùng `FormData` gửi file lên API Backend.
+  - Backend: Đọc file, Upsert vào bảng `Customer_Assignment` theo khóa `ma_crm_cms`. Trả về số lượng thành công/thất bại.
 
 ## 6. Đề xuất routing
 - **Path**: `/customer-movement`
@@ -51,9 +57,9 @@ Quy trình Import file Excel/CSV:
 - **Phân khúc**: Dropdown lọc theo `rfm_segment` (VIP, Vàng, Bạc, ...).
 
 ## 9. Rủi ro kỹ thuật hiện tại của V1
-- **Hiệu suất (Performance)**: Tính toán biến động cho hàng chục ngàn dòng trên Frontend có thể gây lag. Khuyến nghị xử lý tính toán và sort tỷ lệ phần trăm trực tiếp tại Backend SQL/API.
-- **Thiếu mapping nhân sự**: Data gốc (SFTP) không có sẵn "Nhân sự", việc import Excel thủ công dễ sinh ra sai lệch nếu mã CRM thay đổi.
-- **Kỳ so sánh API**: Hiện tại `Customers.jsx` dùng `start_date` / `end_date` cho 1 kỳ. Backend API cần hỗ trợ nhận 2 khoảng thời gian để trả về cả `DT_Ky_1` và `DT_Ky_2`.
+- **Hiệu suất (Performance)**: Tính toán biến động cho hàng chục ngàn dòng trên Frontend có thể gây lag. API `/analytics/top-movers` hiện tại có support limit (ví dụ limit 20 ở Dashboard). Nếu show full list ở module này cần tích hợp Pagination trên API này.
+- **Thiếu mapping nhân sự**: Data gốc (SFTP) không có sẵn "Nhân sự", việc import Excel thủ công phụ thuộc hoàn toàn vào độ chính xác của `ma_crm_cms` do user cung cấp.
+- **Logic so sánh API**: API `/analytics/top-movers` đang hỗ trợ compare 1 khoảng thời gian cố định với kỳ trước đó. Nếu module cần Custom Range tuỳ ý (vd: Quý 1 vs Quý 3), backend có thể cần nâng cấp logic compare.
 
 ## 10. Kế hoạch triển khai theo phase
 | Phase | Nội dung công việc |
