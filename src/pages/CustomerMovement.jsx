@@ -8,10 +8,13 @@ const API_URL = `http://${window.location.hostname}:8080/api`;
 export default function CustomerMovement() {
   const [filters, setFilters] = useState({
     search: '',
-    start_date: '',
-    end_date: '',
+    current_start_date: '',
+    current_end_date: '',
+    compare_start_date: '',
+    compare_end_date: '',
     don_vi: '',
     rfm_segment: '',
+    nhom_kh: '',
     nhan_su: '',
     movement_status: ''
   });
@@ -84,24 +87,6 @@ export default function CustomerMovement() {
         </div>
       </div>
 
-      {/* LIMITATIONS BANNER */}
-      <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
-        <AlertTriangle className="text-red-500 shrink-0 mt-0.5" size={20} />
-        <div>
-          <h3 className="text-sm font-bold text-red-800 uppercase">🚨 Limitations Phát Hiện (API Không Đủ Schema)</h3>
-          <ul className="text-xs text-red-700 mt-2 list-disc pl-4 space-y-1">
-            <li><strong>Response Schema:</strong> Endpoint `/analytics/top-movers` trả về `movers: {'{'} gainers, losers {'}'}` thay vì mảng `items` phẳng.</li>
-            <li><strong>Missing Fields:</strong> Thiếu các trường bắt buộc: `rfm_segment`, `nhan_su`, `ma_bc_phu_trach`, `movement_status`, `current_rev`.</li>
-            <li><strong>Naming Mismatch:</strong> API trả về `ma_kh` (thay vì `ma_crm_cms`), `diff` (thay vì `diff_value`), `previous` (thay vì `previous_rev`).</li>
-            <li><strong>KPI Summary:</strong> Không có sẵn `count_gainers`, `count_losers`, `total_gain`, `total_loss` ở root summary theo contract.</li>
-            <li><strong>Pagination:</strong> Không hỗ trợ meta data server-side pagination (`total`, `page`, `limit`).</li>
-          </ul>
-          <p className="text-xs text-red-800 mt-2 font-bold bg-red-100 p-2 rounded">
-            👉 Frontend tuân thủ nguyên tắc: KHÔNG tự tính toán (calculate diff/percent), KHÔNG tạo transform layer, KHÔNG hack dữ liệu. Đang render trực tiếp raw data từ API hiện có. Cần Backend cập nhật API theo đúng Contract.
-          </p>
-        </div>
-      </div>
-
       {/* Filter Area */}
       <div className="card p-4 bg-white shadow-sm border border-gray-100 rounded-xl">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -119,30 +104,57 @@ export default function CustomerMovement() {
               />
             </div>
           </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-gray-600 uppercase">Từ ngày</label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-              <input 
-                type="date" 
-                name="start_date"
-                value={filters.start_date}
-                onChange={handleFilterChange}
-                className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 focus:border-vnpost-blue outline-none text-sm" 
-              />
+          {/* Nhóm Kỳ Hiện Tại */}
+          <div className="space-y-1.5 lg:col-span-2 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+            <label className="text-xs font-bold text-blue-800 uppercase block mb-2">Kỳ Hiện Tại (Current)</label>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <input 
+                  type="date" 
+                  name="current_start_date"
+                  value={filters.current_start_date}
+                  onChange={handleFilterChange}
+                  className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 focus:border-vnpost-blue outline-none text-sm" 
+                />
+              </div>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <input 
+                  type="date" 
+                  name="current_end_date"
+                  value={filters.current_end_date}
+                  onChange={handleFilterChange}
+                  className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 focus:border-vnpost-blue outline-none text-sm" 
+                />
+              </div>
             </div>
           </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-gray-600 uppercase">Đến ngày</label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-              <input 
-                type="date" 
-                name="end_date"
-                value={filters.end_date}
-                onChange={handleFilterChange}
-                className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 focus:border-vnpost-blue outline-none text-sm" 
-              />
+
+          {/* Nhóm Kỳ So Sánh */}
+          <div className="space-y-1.5 lg:col-span-2 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+            <label className="text-xs font-bold text-gray-700 uppercase block mb-2">Kỳ So Sánh (Compare)</label>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <input 
+                  type="date" 
+                  name="compare_start_date"
+                  value={filters.compare_start_date}
+                  onChange={handleFilterChange}
+                  className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 focus:border-vnpost-blue outline-none text-sm" 
+                />
+              </div>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <input 
+                  type="date" 
+                  name="compare_end_date"
+                  value={filters.compare_end_date}
+                  onChange={handleFilterChange}
+                  className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 focus:border-vnpost-blue outline-none text-sm" 
+                />
+              </div>
             </div>
           </div>
           <div className="space-y-1.5">
@@ -173,14 +185,25 @@ export default function CustomerMovement() {
             </select>
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-gray-600 uppercase">Nhân sự</label>
+            <label className="text-xs font-bold text-gray-600 uppercase">Phân loại</label>
+            <select name="nhom_kh" value={filters.nhom_kh} onChange={handleFilterChange} className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-vnpost-blue outline-none text-sm bg-white">
+              <option value="">Tất cả phân loại</option>
+              <option value="Khách hàng hiện hữu">Khách hàng hiện hữu</option>
+              <option value="Khách hàng mới">Khách hàng mới</option>
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-gray-600 uppercase flex items-center justify-between">
+              Nhân sự <span className="text-[9px] text-orange-500 font-normal normal-case">(Chưa SS)</span>
+            </label>
             <input 
               type="text" 
               name="nhan_su"
               value={filters.nhan_su}
               onChange={handleFilterChange}
-              placeholder="Nhập tên nhân sự..." 
-              className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-vnpost-blue outline-none text-sm bg-white" 
+              placeholder="Dữ liệu nhân sự chưa SS..." 
+              disabled
+              className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 outline-none text-sm text-gray-400 cursor-not-allowed" 
             />
           </div>
         </div>

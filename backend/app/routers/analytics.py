@@ -611,6 +611,7 @@ async def get_customer_movement(
     don_vi: str = Query(None),
     rfm_segment: str = Query(None),
     movement_status: str = Query(None),
+    nhom_kh: str = Query(None),
     nhan_su: str = Query(None),
     search: str = Query(None),
     page: int = 1,
@@ -629,24 +630,27 @@ async def get_customer_movement(
         curr_end = datetime.strptime(current_end_date, "%Y-%m-%d").replace(hour=23, minute=59, second=59)
         
     if not compare_start_date or not compare_end_date:
-        prev_start = curr_start - dateutil.relativedelta.relativedelta(months=1)
-        comparison_end = curr_end
-        if max_data_date and curr_end > max_data_date:
-             comparison_end = max_data_date
-        prev_end = comparison_end - dateutil.relativedelta.relativedelta(months=1)
+        # Không tự đoán kỳ trước, không ẩn giấu logic MoM ngầm
+        prev_start = None
+        prev_end = None
     else:
         prev_start = datetime.strptime(compare_start_date, "%Y-%m-%d")
         prev_end = datetime.strptime(compare_end_date, "%Y-%m-%d").replace(hour=23, minute=59, second=59)
 
+    # 2. Fetch current revenue per customer
     query_curr = db.query(Transaction.ma_kh, func.sum(Transaction.doanh_thu))\
                    .filter(Transaction.ngay_chap_nhan >= curr_start, Transaction.ngay_chap_nhan <= curr_end)\
                    .group_by(Transaction.ma_kh)
     curr_rev_map = {r[0]: (r[1] or 0) for r in query_curr.all() if r[0]}
 
-    query_prev = db.query(Transaction.ma_kh, func.sum(Transaction.doanh_thu))\
-                   .filter(Transaction.ngay_chap_nhan >= prev_start, Transaction.ngay_chap_nhan <= prev_end)\
-                   .group_by(Transaction.ma_kh)
-    prev_rev_map = {r[0]: (r[1] or 0) for r in query_prev.all() if r[0]}
+    # 3. Fetch previous revenue per customer
+    if prev_start and prev_end:
+        query_prev = db.query(Transaction.ma_kh, func.sum(Transaction.doanh_thu))\
+                       .filter(Transaction.ngay_chap_nhan >= prev_start, Transaction.ngay_chap_nhan <= prev_end)\
+                       .group_by(Transaction.ma_kh)
+        prev_rev_map = {r[0]: (r[1] or 0) for r in query_prev.all() if r[0]}
+    else:
+        prev_rev_map = {}
 
     all_ma_kh = set(curr_rev_map.keys()).union(set(prev_rev_map.keys()))
     if not all_ma_kh:
@@ -658,6 +662,8 @@ async def get_customer_movement(
         cust_query = cust_query.filter(Customer.don_vi == don_vi)
     if rfm_segment:
         cust_query = cust_query.filter(Customer.rfm_segment == rfm_segment)
+    if nhom_kh:
+        cust_query = cust_query.filter(Customer.nhom_kh == nhom_kh)
     if search:
         search_pattern = f"%{search}%"
         cust_query = cust_query.filter((Customer.ma_crm_cms.ilike(search_pattern)) | (Customer.ten_kh.ilike(search_pattern)))
@@ -672,7 +678,7 @@ async def get_customer_movement(
     count_losers = 0
 
     for ma_kh in all_ma_kh:
-        if (don_vi or rfm_segment or search) and ma_kh not in cust_map:
+        if (don_vi or rfm_segment or search or nhom_kh) and ma_kh not in cust_map:
             continue
             
         c = cust_map.get(ma_kh)
