@@ -12,7 +12,7 @@ const mockData = {
     {
       ma_crm_cms: "CMS001",
       ten_kh: "CTY TNHH ABC",
-      ma_bc_phu_trach": "700000",
+      ma_bc_phu_trach: "700000",
       rfm_segment: "VIP",
       nhan_su: "Nguyễn Văn A",
       current_rev: 15000000,
